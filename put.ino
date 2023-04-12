@@ -1,20 +1,31 @@
-#include <FirebaseESP32.h>
-#include <FirebaseFS.h>
-#include <Utils.h>
-#include <WiFi.h>
+//#include <FirebaseESP32.h>
+//#include <WiFi.h>
+#include "lib.h"
+//
+//#define FIREBASE_HOST "https://capsulasfinal-default-rtdb.firebaseio.com/"
+//#define FIREBASE_AUTH "CpYYbimhc6DmdfR9Fv91NCvhWtTiEpb6B9Q5IVHU"
 
+//LiquidCrystal lcd(19, 23, 18, 17, 16, 15);
+//
+//const char *ssid = "Vivo-Internet-BF17";
+//const char *password = "78814222";
 
-#define FIREBASE_HOST "https://capsulas-fbdf0-default-rtdb.firebaseio.com/"
-#define FIREBASE_AUTH "KQsc6H51mKaBXsJt9dOLTLhu05MErDQAgj4jsy0A" 
+//const char *ssid = "iPhone de Ramirez";
+//const char *password = "trabalhoesp32";
 
-const char *ssid = "Vivo-Internet-BF17";
-const char *password = "78814222";
 FirebaseData firebaseData;
 FirebaseJson json;
+FirebaseJsonData result;
+int qtt = 100;
+int indx = 0;
+int seila = 0;
+
+std::vector<CafeTipo> cafesTipos;
 
 void setup() {
-  // put your setup code here, to run once:
-  pinMode(19, INPUT);
+//  lcd.begin(16, 2);
+  pinMode(26, INPUT);
+  Serial.begin(9600);
   pinMode(21, OUTPUT);
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED)
@@ -31,14 +42,32 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  if(digitalRead(19))
-    digitalWrite(21, HIGH);
-  delay(200);
-  digitalWrite(21, LOW);
+  if (digitalRead(26))
+  {
+//    Serial.print("Olha quanta coisa: "); Serial.println(qtt);
+    json.set("/Capsulas/"+ (String)indx + "/Nome", "cafe preto");
+    json.set("/Capsulas/"+ (String)indx + "/Quantidade", qtt);
+    qtt--;
+    indx++;
+    Firebase.updateNode(firebaseData, "/", json);
+    delay(200);
+  }
+  if (Firebase.getInt(firebaseData, "/Capsulas")) {
+    if (firebaseData.dataTypeEnum() == fb_esp_rtdb_data_type_integer) {
+      seila = firebaseData.to<int>();
+    }
+//    Serial.print(seila);
+//    Serial.print(Firebase.getInt(firebaseData, "/"));
+  }
+    String s = firebaseData.stringData();
+    cafesTipos = jsonParse(s);
 
-  json.set("/Nome", "cafe preto");
-  json.set("/Quantidade", 10);
-  Firebase.updateNode(firebaseData, "/Capsulas", json);
-
+    
+    for (int i = 0; i < cafesTipos.size(); i++)
+    {
+      Serial.println(cafesTipos[i].Nome);
+      Serial.print(" - ");
+      Serial.print(cafesTipos[i].Quantidade);
+      delay(500);
+    }
 }
