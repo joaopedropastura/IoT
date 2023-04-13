@@ -1,16 +1,18 @@
-#ifndef Network_h
-#define Network_h
+#ifndef lib_h
+#define lib_h
+
+#include <WiFi.h>
 #include <vector>
 #include <FirebaseESP32.h>
-#include <WiFi.h>
 
-#define FIREBASE_HOST "https://capsulasfinal-default-rtdb.firebaseio.com/"
-#define FIREBASE_AUTH "CpYYbimhc6DmdfR9Fv91NCvhWtTiEpb6B9Q5IVHU"
+const char FIREBASE_HOST[] = "https://capsulasfinal-default-rtdb.firebaseio.com/";
+const char FIREBASE_AUTH[] = "CpYYbimhc6DmdfR9Fv91NCvhWtTiEpb6B9Q5IVHU";
 
-const char *ssid = "Vivo-Internet-BF17";
-const char *password = "78814222";
+const char ssid[] = "Vivo-Internet-BF17";
+const char pass[] = "78814222";
 
-typedef struct {
+typedef struct
+{
   String Nome;
   int Quantidade;
 } CafeTipo;
