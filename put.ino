@@ -1,40 +1,35 @@
-//#include <FirebaseESP32.h>
-//#include <WiFi.h>
 #include "lib.h"
-//
-//#define FIREBASE_HOST "https://capsulasfinal-default-rtdb.firebaseio.com/"
-//#define FIREBASE_AUTH "CpYYbimhc6DmdfR9Fv91NCvhWtTiEpb6B9Q5IVHU"
-
-//LiquidCrystal lcd(19, 23, 18, 17, 16, 15);
-//
-//const char *ssid = "Vivo-Internet-BF17";
-//const char *password = "78814222";
-
-//const char *ssid = "iPhone de Ramirez";
-//const char *password = "trabalhoesp32";
 
 FirebaseData firebaseData;
 FirebaseJson json;
-FirebaseJsonData result;
-int qtt = 100;
+
+int status = WL_IDLE_STATUS;
+int quantidade = 100;
 int indx = 0;
-int seila = 0;
+String val = "example";
 
 std::vector<CafeTipo> cafesTipos;
 
 void setup() {
-//  lcd.begin(16, 2);
-  pinMode(26, INPUT);
+  // Serial init
   Serial.begin(9600);
+  while (!Serial) { }
+
+  // Pin init
+  pinMode(26, INPUT);
   pinMode(21, OUTPUT);
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    Serial.print(".");
-    delay(300);
+
+  // WiFi init
+  while (status != WL_CONNECTED) {
+    Serial.print("Attempting to connect to WPA SSID: ");
+    Serial.println(ssid);
+
+    status = WiFi.begin(ssid, pass);
+
+    delay(10000);
   }
-  Serial.print("Connected with IP: ");
-  Serial.println(WiFi.localIP());
+  Serial.print("You're connected to the network");
+
   Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
   Firebase.reconnectWiFi(true);
   Firebase.setReadTimeout(firebaseData, 1000 * 60);
@@ -44,30 +39,34 @@ void setup() {
 void loop() {
   if (digitalRead(26))
   {
-//    Serial.print("Olha quanta coisa: "); Serial.println(qtt);
-    json.set("/Capsulas/"+ (String)indx + "/Nome", "cafe preto");
-    json.set("/Capsulas/"+ (String)indx + "/Quantidade", qtt);
-    qtt--;
+    json.set("/Capsulas/" + (String)indx + "/Nome", "cafe preto");
+    json.set("/Capsulas/" + (String)indx + "/Quantidade", quantidade);
+    quantidade--;
     indx++;
     Firebase.updateNode(firebaseData, "/", json);
-    delay(200);
+    delay(300);
   }
-  if (Firebase.getInt(firebaseData, "/Capsulas")) {
-    if (firebaseData.dataTypeEnum() == fb_esp_rtdb_data_type_integer) {
-      seila = firebaseData.to<int>();
-    }
-//    Serial.print(seila);
-//    Serial.print(Firebase.getInt(firebaseData, "/"));
-  }
-    String s = firebaseData.stringData();
-    cafesTipos = jsonParse(s);
 
-    
-    for (int i = 0; i < cafesTipos.size(); i++)
-    {
-      Serial.println(cafesTipos[i].Nome);
-      Serial.print(" - ");
-      Serial.print(cafesTipos[i].Quantidade);
-      delay(500);
-    }
+  if (Firebase.getString(firebaseData, "/Capsulas")) {                           // On successful Read operation, function returns 1
+    Serial.println(firebaseData.dataType());
+    val = firebaseData.stringData();
+    Serial.println(val);
+    Serial.println("\n Change value at firebase console to see changes here.");
+    delay(1000);
+  } else {
+    Serial.println(firebaseData.errorReason());
+  }
+  // }
+  //  String json = firebaseData.stringData();
+  //  cafesTipos = jsonParse(json);
+  //  Serial.println(json);
+  //
+  //  for (int i = 0; i < cafesTipos.size(); i++)
+  //  {
+  //
+  //    Serial.print(cafesTipos[i].Nome);
+  //    Serial.print(" - ");
+  //    Serial.println(cafesTipos[i].Quantidade);
+  //    delay(500);
+  //  }
 }
