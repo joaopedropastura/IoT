@@ -4,8 +4,8 @@
 #include "addons/RTDBHelper.h"
 #include <vector>
 
-#define WIFI_SSID "gab"
-#define WIFI_PASSWORD "gabriellee"
+#define WIFI_SSID "Vivo-Internet-BF17"
+#define WIFI_PASSWORD "78814222"
 #define API_KEY "AIzaSyCNF0kP0IkgQWUfme7J1NNbaL2rC8MM4ps"
 #define DATABASE_URL "https://capsulas-rtdb-default-rtdb.firebaseio.com/"
 
@@ -60,15 +60,13 @@ void setup() {
 }
 
 void loop() {
-
-
   if (Firebase.ready() && signupOK && (millis() - sendDataPrevMillis > 500 || sendDataPrevMillis == 0)) {
     sendDataPrevMillis = millis();
 
     for (int i = 0; i < coffeeStorages.size(); i++) {
       String path = "Capsulas/" + (String)i;
 
-      if (!Firebase.RTDB.setString(&fbdo, path + "/Name", coffeeStorages[i].Name) || !Firebase.RTDB.setString(&fbdo, path + "/Amount", coffeeStorages[i].Amount)) {
+      if (!Firebase.RTDB.setString(&fbdo, path + "/Name", coffeeStorages[i].Name) || !Firebase.RTDB.setInt(&fbdo, path + "/Amount", coffeeStorages[i].Amount)) {
         Serial.println(i + " - ERRO: " + fbdo.errorReason());
       }
     }
