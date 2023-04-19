@@ -1,11 +1,11 @@
 #include <WiFi.h>
-#include <Firebase_ESP_Client.h>
+#include <FirebaseESP32.h>
 #include "addons/TokenHelper.h"
 #include "addons/RTDBHelper.h"
 #include <vector>
 
-#define WIFI_SSID "Vivo-Internet-BF17"
-#define WIFI_PASSWORD "78814222"
+#define WIFI_SSID "gab"
+#define WIFI_PASSWORD "gabriellee"
 #define API_KEY "AIzaSyCNF0kP0IkgQWUfme7J1NNbaL2rC8MM4ps"
 #define DATABASE_URL "https://capsulas-rtdb-default-rtdb.firebaseio.com/"
 
@@ -13,7 +13,6 @@ FirebaseData fbdo;
 FirebaseAuth auth;
 FirebaseConfig config;
 
-unsigned long sendDataPrevMillis = 0;
 bool signupOK = false;
 
 typedef struct {
@@ -23,13 +22,13 @@ typedef struct {
 
 
 std::vector<CoffeeStorage> coffeeStorages = {
-  { "Mocha", 10 },
-  { "Capuccino", 10 },
+  { "Mocha", 6 },
+  { "Capuccino", 0 },
   { "Café com Leite", 10 },
   { "Café Brasileiro", 3 },
-  { "Café Espresso", 10 },
-  { "Mochaccino", 10 },
-  { "Frapuccino", 10 }
+  { "Café Espresso", 8 },
+  { "Mochaccino", 9 },
+  { "Frapuccino", 1 }
 };
 
 void setup() {
@@ -60,9 +59,7 @@ void setup() {
 }
 
 void loop() {
-  if (Firebase.ready() && signupOK && (millis() - sendDataPrevMillis > 500 || sendDataPrevMillis == 0)) {
-    sendDataPrevMillis = millis();
-
+  if (Firebase.ready() && signupOK) {
     for (int i = 0; i < coffeeStorages.size(); i++) {
       String path = "Capsulas/" + (String)i;
 

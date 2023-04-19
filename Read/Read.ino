@@ -1,11 +1,11 @@
 #include <WiFi.h>
-#include <Firebase_ESP_Client.h>
+#include <FirebaseESP32.h>
 #include "addons/TokenHelper.h"
 #include "addons/RTDBHelper.h"
 #include <vector>
 
-#define WIFI_SSID "Vivo-Internet-BF17"
-#define WIFI_PASSWORD "78814222"
+#define WIFI_SSID "gab"
+#define WIFI_PASSWORD "gabriellee"
 #define API_KEY "AIzaSyCNF0kP0IkgQWUfme7J1NNbaL2rC8MM4ps"
 #define DATABASE_URL "https://capsulas-rtdb-default-rtdb.firebaseio.com/"
 
@@ -13,9 +13,7 @@ FirebaseData fbdo;
 FirebaseAuth auth;
 FirebaseConfig config;
 
-unsigned long sendDataPrevMillis = 0;
 bool signupOK = false;
-int coffeeIndex = 0;
 
 typedef struct {
   String Name;
@@ -53,57 +51,36 @@ void setup() {
 }
 
 void loop() {
-  if (Firebase.ready() && signupOK && (millis() - sendDataPrevMillis > 500 || sendDataPrevMillis == 0)) {
-    sendDataPrevMillis = millis();
-
-
-    if (Firebase.RTDB.getJSON(&fbdo, "Capsulas/")) {
+  if (Firebase.ready() && signupOK) {
+    if (Firebase.RTDB.getArray(&fbdo, "/Capsulas")) {
       Serial.println(fbdo.dataType());
-      if (fbdo.dataType() == "json") {
-        Serial.println(fbdo.jsonString());
+      if (fbdo.dataType() == "array") {
+        FirebaseJsonArray &arr = fbdo.to<FirebaseJsonArray>();
+
+        FirebaseJsonData result;
+
+        result.get<FirebaseJsonArray>(arr);
+
+        for (size_t i = 0; i < arr.size(); i++) {
+          // result now used as temporary object to get the parse results
+          arr.get(result, i);
+
+          String data = result.to<String>();
+          data.replace("{", "");
+          data.replace("}", "");
+          data.replace("\"", "");
+          data.replace("Name:", "");
+          data.replace("Amount:", "");
+
+        
+          int amount = data.substring(0, data.indexOf(',')).toInt();
+          String name = data.substring(data.indexOf(',') + 1);
+          coffeeStorages.push_back({ name, amount });
+          Serial.println(name + " - " + (String)amount);
+        }
       } else {
         Serial.println("FAILED: " + fbdo.errorReason());
       }
     }
-
-
-
-    //    for (;;) {
-    //
-    //      String path = "Capsulas/" + (String)coffeeIndex;
-    //      CoffeeStorage newData;
-    //
-    //      if (Firebase.RTDB.getString(&fbdo, path + "/Name")) {
-    //        if (fbdo.dataType() == "string") {
-    //          newData.Name = fbdo.stringData();
-    //          Serial.println(fbdo.stringData().length());
-    //          Serial.println(newData.Name == "");
-    //          Serial.println(newData.Name == " ");
-    //        } else {
-    //          Serial.println("FAILED: " + fbdo.errorReason());
-    //          break;
-    //        }
-    //      }
-    //
-    //      if (Firebase.RTDB.getInt(&fbdo, path + "/Amount")) {
-    //        if (fbdo.dataType() == "int") {
-    //          newData.Amount = fbdo.intData();
-    //        } else {
-    //          Serial.println("FAILED: " + fbdo.errorReason());
-    //          break;
-    //        }
-    //      }
-    //
-    //      Serial.println((String)coffeeIndex + " - " + newData.Name + " - " + newData.Amount);
-    //      coffeeStorages.push_back(newData);
-    //      ++coffeeIndex;
-    //    }
-    //
-    //    Serial.println("Saiu");
-    //
-    //    for (int i = 0; i < coffeeStorages.size(); i++)
-    //    {
-    //      Serial.println((String)coffeeStorages[i].Name + " - " + coffeeStorages[i].Amount);
-    //    }
   }
 }
