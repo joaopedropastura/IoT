@@ -20,7 +20,6 @@ typedef struct {
   byte Amount;
 } CoffeeStorage;
 
-
 std::vector<CoffeeStorage> coffeeStorages = {
   { "Mocha", 6 },
   { "Capuccino", 0 },
