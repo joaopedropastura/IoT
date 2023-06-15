@@ -6,7 +6,7 @@
 #define FIREBASE_AUTH "KQsc6H51mKaBXsJt9dOLTLhu05MErDQAgj4jsy0A" 
 
 
-float amount = 0;
+float amount;
 const char *ssid = "Hemer";
 const char *password = "zbqs9196";
 FirebaseData firebaseData;
@@ -33,18 +33,20 @@ void setup() {
   Firebase.reconnectWiFi(true);
   Firebase.setReadTimeout(firebaseData, 1000 * 60);
   Firebase.setwriteSizeLimit(firebaseData, "tiny");
-}
-
-void loop() {
   if(Firebase.getFloat(firebaseData, "Amount/networth"))
   {
   if (firebaseData.dataTypeEnum() == fb_esp_rtdb_data_type_float) {
+      Serial.print(firebaseData.to<float>());
       amount = firebaseData.to<float>();
     }
     else{
       Serial.println(firebaseData.errorReason());
     }
   }
+Serial.print(amount);
+}
+void loop() {
+  Serial.println(amount);
   if(digitalRead(34))
   {
     amount += 1;
