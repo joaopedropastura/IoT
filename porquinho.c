@@ -13,6 +13,7 @@ Servo myservo;
 float amount;
 const char *ssid = "Hemer";
 const char *password = "zbqs9196";
+bool flag = true;
 
 std::map < int, float > coinValue = 
 {
@@ -68,13 +69,16 @@ void AllowCoinPassage()
   myservo.write(60);
   delay(1000);
   myservo.write(147); 
+  delay(100);
+  flag = true;
 }
 
 float verify(int port)
 {
   delay(500);
-    if(digitalRead(port))
+    if(digitalRead(port) && flag)
     {
+      flag = false;
       AllowCoinPassage();
       return coinValue[port];
     }
